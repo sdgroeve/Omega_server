@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+	<div class="ui text container">
+	  <h1>Omega (beta)</h1>
+
+	  <p>Please wait while your MS2 spectrum files are being processed. You can follow the progress below.</p>
+
+		<ul id="output"></ul>
+
+		<a href="{{ url_for('main.download') }}" id="downloadbutton" class="ui button">download</a>
+
+	</div>
+	
+	
+	<script>
+    var output = document.getElementById('output');
+    var downloadbutton = document.getElementById('downloadbutton');
+    downloadbutton.style.display = "none";
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '{{ url_for('main.stream') }}');
+    xhr.send();
+    var position = 0;
+
+    function handleNewData() {
+        // the response text include the entire response so far
+        // split the messages, then take the messages that haven't been handled yet
+        // position tracks how many messages have been handled
+        // messages end with a newline, so split will always show one extra empty message at the end
+        var messages = xhr.responseText.split('\n');
+        messages.slice(position, -1).forEach(function(value) {
+            // build and append a new item to a list to log all output
+            var item = document.createElement('li');
+            item.textContent = value;
+            output.appendChild(item);
+        });
+        position = messages.length - 1;
+    }
+
+    var timer;
+    timer = setInterval(function() {
+        // check the response for new data
+        handleNewData();
+        // stop checking once the response has ended
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+            clearInterval(timer);
+            //var downloadbutton = document.getElementById('downloadbutton');
+			downloadbutton.style.display = "block";
+        }
+    }, 1000);
+	</script>
+{% endblock %}
+

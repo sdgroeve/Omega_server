@@ -1,0 +1,59 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+	<div class="ui text container">
+		<h1>Omega (beta)</h1>
+	
+		<p>Welcome to the Omega MS2 database-based peptide identification tool. Omega employs only data-driven classification models to accurately match MS2 spectra with the peptides in the database that generated them. Omega therefore differs from other peptide identification tools in two ways.</p>
+
+
+		<p>First, for each MS2 spectrum candidate peptides are selected with an innovative tag-based filtering approach that is precursor mass independent. This allows for fast database searching, even when hundreds of candidate post-translational modifications are considered.</p>
+
+
+		<p>Second, the peptide-spectrum-match (PSM) scoring function is learned from large data repositories such as PRIDE and NIST. This allows Omega to compute a PSM score that exploits information beyond peak counts and explained peak intensity ratios.</p>
+		
+		<h3>How to use</h3>
+
+		<p>This version of Omega requires you to put your MS2 spectrum file(s) in a folder (let’s say ‘your_folder’) you create in the intranet dropbox folder ‘omega_nas’ (i.e. \\romdrop.ugent.be\dropbox\omega_nas\your_folder). For the moment only the Mascot MGF file format is accepted for MS2 spectrum files. In the form below you specify the name of the folder that contains your MS2 spectrum files, i.e. ‘your_folder’.</p>
+
+		<p>Next you need to specify the type of fragmentation that was used to generate the MS2 spectrum files. Omega employs different classification models for each type of fragmentation. Currently only Higher-energy collisional dissociation (HCD) is supported. Finally Omega needs to know the machine specific error tolerances you want to use for peptide identification.</p>
+
+		<p>All fields are required. Finally click the 'Run' button to start Omega!</p>
+
+		<h3>Parameters</h3>
+
+			{% set flashes = {
+				'error':   get_flashed_messages(category_filter=['form-error']),
+				'warning': get_flashed_messages(category_filter=['form-check-email']),
+				'info':    get_flashed_messages(category_filter=['form-info']),
+				'success': get_flashed_messages(category_filter=['form-success'])
+			} %}
+
+			{{ f.begin_form(form, flashes) }}
+
+			   {{ f.render_form_field(form.ms2folder) }}
+			   {{ f.render_form_field(form.frag_method) }}
+
+			   <div class="two fields">
+				{{ f.render_form_field(form.prec_error) }}
+				{{ f.render_form_field(form.frag_error) }}
+			   </div>
+
+			   {{ f.render_form_field(form.fixed_ptms) }}
+
+			   {{ f.render_form_field(form.variable_ptms) }}
+
+			   {{ f.render_form_field(form.open_search) }}
+
+				{{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
+				{{ f.form_message(flashes['warning'], header='Check your email.', class='warning') }}
+				{{ f.form_message(flashes['info'], header='Information', class='info') }}
+				{{ f.form_message(flashes['success'], header='Success!', class='success') }}
+
+				{{ f.render_form_field(form.submit) }}
+			{{ f.end_form(form) }}
+
+	</div>
+	<footer>needs a footer...</footer>
+{% endblock %}
